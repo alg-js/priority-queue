@@ -1,85 +1,57 @@
-/* @ts-self-types="./types.d.ts" */
-
-/**
- * Creates a priority queue with the given comparator function and
- * initial values.
+/* Copyright 2025 James Finnie-Ansley
  *
- * @template T
- * @param {(a: T, b: T) => boolean} comparator comparison function
- * implementing the > relation: `a > b`
- * @param {Iterable<T> | null} initial
- * @returns {PriorityQueue<T>}
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
  */
-export function priorityQueue(comparator, initial = null) {
-    return new PriorityQueue(comparator, initial);
-}
+
+/* @ts-self-types="./main.d.ts" */
 
 
-/**
- * @template T
- */
 export class PriorityQueue {
-    /** @type {T[]} */
     #arr;
-    /** @type {(a: T, b: T) => boolean} */
-    #comparator;
+    #compare;
 
-    /**
-     * Creates a priority queue with the given comparator function and
-     * initial values.
-     *
-     * @param {(a: T, b: T) => boolean} comparator comparison function
-     * implementing the `>` priority relation: `a > b`
-     * @param {Iterable<T> | null} initial
-     */
-    constructor(comparator, initial = null) {
+    constructor(compare = (a, b) => a > b) {
         this.#arr = [];
-        this.#comparator = comparator;
-        if (initial !== null) {
-            this.#arr = [...initial];
-            this.#heapify();
-        }
+        this.#compare = compare;
+        Object.defineProperty(this, "length", {get: () => this.#arr.length});
     }
 
-    /**
-     * Returns the size of the priority queue
-     *
-     * @returns {number}
-     */
-    size() {
-        return this.#arr.length;
+    static from(collection, compare = (a, b) => a > b) {
+        const pq = new PriorityQueue(compare);
+        pq.#arr = [...collection];
+        pq.#heapify();
+        return pq;
     }
 
-    /**
-     * Adds an item to the priority queue
-     *
-     * @param {T} item
-     */
     push(item) {
         this.#arr.push(item);
         this.#percolateUp(this.#arr.length - 1);
     }
 
-    /**
-     * Adds all items to the priority queue
-     *
-     * @param {Iterable<T>} items
-     */
     pushAll(items) {
         for (const item of items) {
             this.push(item);
         }
     }
 
-    /**
-     * Pops and returns a highest priority item from the priority queue
-     *
-     * @returns {T}
-     */
     pop() {
-        if (this.size() === 0) {
-            throw new Error("Called `.pop` on empty priorityQueue");
-        } else {
+        if (this.length === 0) {
+            throw Error("Called `pop` on an empty priority queue");
+        } else if (this.length === 1) {
+            const result = this.#arr[0];
+            this.#arr = [];
+            return result;
+        }else {
             const result = this.#arr[0];
             this.#arr[0] = this.#arr.pop();
             this.#percolateDown(0);
@@ -87,42 +59,66 @@ export class PriorityQueue {
         }
     }
 
-    /**
-     * Returns a highest priority item from the priority queue
-     *
-     * @returns {T}
-     */
+    popK(k) {
+        if (this.length < k) {
+            throw Error(
+                "Called `popK` on a priority queue with fewer than k items",
+            );
+        } else {
+            const result = [];
+            for (let i = 0; i < k; i++) {
+                result.push(this.pop());
+            }
+            return result;
+        }
+    }
+
     peek() {
-        if (this.size() === 0) {
-            throw new Error("Called `.peek` on empty priorityQueue");
+        if (this.length === 0) {
+            throw Error(
+                "Called `peek` on an empty priority queue",
+            );
         } else {
             return this.#arr[0];
         }
     }
 
-    /**
-     * Iterates over items from the priority queue is descending priority order.
-     * Behaviour is not defined if items are added, removed, or peeked during
-     * iteration.
-     *
-     * @returns {Generator<T, void, void>}
-     */
+    peekK(k) {
+        if (this.length === 0) {
+            throw Error(
+                "Called `peekK` on a priority queue with fewer than k items",
+            );
+        } else {
+            // Do NOT call `.peekK` on this
+            const q = new PriorityQueue((a, b) => this.#compareIndex(a, b));
+            const result = [];
+            q.push(0);
+            while (result.length < k) {
+                const i = q.pop();
+                result.push(i);
+                q.push(i * 2 + 1);
+                q.push(i * 2 + 2);
+            }
+            return result.map((i) => this.#arr[i]);
+        }
+    }
+
     * [Symbol.iterator]() {
-        yield* this.#arr.toSorted((a, b) => this.#comparator(a, b) ? -1 : 1);
+        yield* this.#arr.toSorted((a, b) => this.#compare(a, b) ? -1 : 1);
     }
 
     #swap(i, j) {
         [this.#arr[i], this.#arr[j]] = [this.#arr[j], this.#arr[i]];
     }
 
-    #compare(i, j) {
-        return this.#comparator(this.#arr[i], this.#arr[j]);
+    #compareIndex(i, j) {
+        return this.#compare(this.#arr[i], this.#arr[j]);
     }
 
     #priorityChild(i) {
         const left = i * 2 + 1;
         const right = i * 2 + 2;
-        if (right >= this.size() || this.#compare(left, right)) {
+        if (right >= this.length || this.#compareIndex(left, right)) {
             return left;
         } else {
             return right;
@@ -138,7 +134,10 @@ export class PriorityQueue {
 
     #percolateDown(i) {
         let child = this.#priorityChild(i);
-        while (i < Math.floor(this.size() / 2) && this.#compare(child, i)) {
+        while (
+            i < Math.floor(this.length / 2)
+            && this.#compareIndex(child, i)
+            ) {
             this.#swap(child, i);
             i = child;
             child = this.#priorityChild(i);
@@ -147,7 +146,7 @@ export class PriorityQueue {
 
     #percolateUp(i) {
         let parent = Math.floor((i - 1) / 2);
-        while (i > 0 && this.#compare(i, parent)) {
+        while (i > 0 && this.#compareIndex(i, parent)) {
             this.#swap(i, parent);
             i = parent;
             parent = Math.floor((i - 1) / 2);
