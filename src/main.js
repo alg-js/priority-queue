@@ -18,16 +18,16 @@
 
 export class PriorityQueue {
     #arr;
-    #compare;
+    #gt;
 
-    constructor(compare = (a, b) => a > b) {
+    constructor({gt = (a, b) => a > b} = {}) {
         this.#arr = [];
-        this.#compare = compare;
+        this.#gt = gt;
         Object.defineProperty(this, "length", {get: () => this.#arr.length});
     }
 
-    static from(collection, compare = (a, b) => a > b) {
-        const pq = new PriorityQueue(compare);
+    static from(collection, options = {}) {
+        const pq = new PriorityQueue(options);
         pq.#arr = [...collection];
         pq.#heapify();
         return pq;
@@ -90,7 +90,9 @@ export class PriorityQueue {
             );
         } else {
             // Do NOT call `.peekK` on this
-            const q = new PriorityQueue((a, b) => this.#compareIndex(a, b));
+            const q = new PriorityQueue(
+                {gt: (a, b) => this.#compareIndex(a, b)}
+            );
             const result = [];
             q.push(0);
             while (result.length < k) {
@@ -104,7 +106,7 @@ export class PriorityQueue {
     }
 
     * [Symbol.iterator]() {
-        yield* this.#arr.toSorted((a, b) => this.#compare(a, b) ? -1 : 1);
+        yield* this.#arr.toSorted((a, b) => this.#gt(a, b) ? -1 : 1);
     }
 
     #swap(i, j) {
@@ -112,7 +114,7 @@ export class PriorityQueue {
     }
 
     #compareIndex(i, j) {
-        return this.#compare(this.#arr[i], this.#arr[j]);
+        return this.#gt(this.#arr[i], this.#arr[j]);
     }
 
     #priorityChild(i) {

@@ -17,28 +17,33 @@
  * @template T
  */
 export class PriorityQueue<T> {
-  /**
-   * The size of the priority queue
-   */
+  /** The size of the priority queue */
   readonly length: number;
 
   /**
-   * Creates a priority queue with the given comparator function and
-   * initial values.
+   * Creates a priority queue.
    *
-   * @param {(a: T, b: T) => boolean} compare comparison function
-   * implementing the `>` priority relation: `a > b`
+   * The `gt` function defines `>` relation indicating priority. That is,
+   * `a > b` indicates `a` is higher priority than `b`. By default, `>` is used.
+   *
+   * @param {Object} options
+   * @param {(a: T, b: T) => boolean} options.gt The priority relation
    */
-  constructor(compare: (a: T, b: T) => boolean);
+  constructor(options?: {gt?: (a: T, b: T) => boolean});
 
   /**
-   * Creates a priority queue
+   * Creates a priority queue from the given items
+   *
+   * The `gt` function defines `>` relation indicating priority. That is,
+   * `a > b` indicates `a` is higher priority than `b`. By default, `>` is used.
+   *
    * @param items
-   * @param compare
+   * @param {Object=} options
+   * @param {(a: T, b: T) => boolean=} options.gt
    */
   static from<T>(
     items: Iterable<T>,
-    compare: (a: T, b: T) => boolean,
+    options?: {gt?: (a: T, b: T) => boolean},
   ): PriorityQueue<T>;
 
   /**

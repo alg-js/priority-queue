@@ -13,17 +13,22 @@ deno add jsr:@alg/priority-queue
 
 ## Example
 
+A `gt` function defining greater priority can be provided to constructor methods
+as an option. By default, `>` is used.
+
 ```javascript
 import {PriorityQueue} from "@alg/priority-queue";
 
-const strCmp = (a, b) => a.toUpperCase() < b.toUpperCase();
-const initial = ["C", "a", "A", "B"];
-const q = PriorityQueue.from(initial, strCmp);  // Look, ma! O(n) heapify!
-console.log(q.peek());  // "a" or "A"
-console.log(q.pop());  // "a" or "A"
-q.push("X");
-q.pushAll(["Y", "Z"]);
-console.log(q.pop());  // "a" or "A"
-console.log(q.length);  // 5
-console.log([...q]);  // ["B", "C", "X", "Y", "Z"]
+// Look, ma! O(n) heapify!
+const q = PriorityQueue.from([2, 4, 3], {gt: (a, b) => a < b});
+
+console.log(q.length);  // 3
+
+console.log(q.peek());  // 2
+console.log(q.pop());  // 2
+
+q.push(1);
+q.pushAll([2, 5]);
+
+console.log([...q]);  // [1, 2, 3, 4, 5]
 ```

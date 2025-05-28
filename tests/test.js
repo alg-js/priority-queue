@@ -22,11 +22,11 @@ const lt = ((a, b) => a < b);
 Deno.test({
     name: "priority queues can be heapified",
     fn: () => {
-        const q = PriorityQueue.from([5, 4, 3, 2, 1], lt);
+        const q = PriorityQueue.from([5, 4, 3, 2, 1], {gt: lt});
         assertEquals(q.peek(), 1);
         assertEquals([...q], [1, 2, 3, 4, 5]);
 
-        const q1 = PriorityQueue.from([5, 4, 3, 7, 6, 2, 1, 8], lt);
+        const q1 = PriorityQueue.from([5, 4, 3, 7, 6, 2, 1, 8], {gt: lt});
         assertEquals(q1.peek(), 1);
         assertEquals([...q1], [1, 2, 3, 4, 5, 6, 7, 8]);
 
@@ -40,11 +40,11 @@ Deno.test({
 Deno.test({
     name: "items can be pushed to priority queues",
     fn: () => {
-        const q = new PriorityQueue(lt);
+        const q = new PriorityQueue({gt: lt});
         [5, 2, 4, 1, 3].forEach((e) => q.push(e));
         assertEquals([...q], [1, 2, 3, 4, 5]);
 
-        const q1 = new PriorityQueue(lt);
+        const q1 = new PriorityQueue({gt: lt});
         [5, 4, 3, 7, 6, 2, 1, 8].forEach((e) => q1.push(e));
         assertEquals([...q1], [1, 2, 3, 4, 5, 6, 7, 8]);
 
@@ -58,11 +58,11 @@ Deno.test({
 Deno.test({
     name: "multiple items can be pushed to priority queues",
     fn: () => {
-        const q = new PriorityQueue(lt);
+        const q = new PriorityQueue({gt: lt});
         q.pushAll([5, 2, 4, 1, 3]);
         assertEquals([...q], [1, 2, 3, 4, 5]);
 
-        const q1 = new PriorityQueue(lt);
+        const q1 = new PriorityQueue({gt: lt});
         q1.pushAll([5, 4, 3, 7, 6, 2, 1, 8]);
         assertEquals([...q1], [1, 2, 3, 4, 5, 6, 7, 8]);
     },
@@ -88,13 +88,13 @@ Deno.test({
 Deno.test({
     name: "items can be peeked from priority queues",
     fn: () => {
-        const q = new PriorityQueue(lt);
+        const q = new PriorityQueue({gt: lt});
         [5, 2, 4, 1, 3].forEach((e) => q.push(e));
         assertEquals(q.peek(), 1);
         assertEquals(q.peekK(1), [1]);
         assertEquals(q.peekK(3), [1, 2, 3]);
 
-        const q1 = new PriorityQueue(lt);
+        const q1 = new PriorityQueue({gt: lt});
         [5, 4, 3, 7, 6, 2, 1, 8].forEach((e) => q1.push(e));
         assertEquals(q1.peek(), 1);
         assertEquals(q1.peekK(1), [1]);
@@ -106,14 +106,14 @@ Deno.test({
 Deno.test({
     name: "items can be popped from priority queues",
     fn: () => {
-        const q = new PriorityQueue(lt);
+        const q = new PriorityQueue({gt: lt});
         [5, 2, 4, 1, 3].forEach((e) => q.push(e));
         assertEquals(q.pop(), 1);
         assertEquals([...q], [2, 3, 4, 5]);
         assertEquals(q.popK(3), [2, 3, 4]);
         assertEquals([...q], [5]);
 
-        const q1 = new PriorityQueue(lt);
+        const q1 = new PriorityQueue({gt: lt});
         q1.push(1)
         assertEquals(q1.pop(), 1);
         assertEquals([...q1], []);
@@ -136,7 +136,7 @@ Deno.test({
 Deno.test({
     name: "priority queues can be iterated",
     fn: () => {
-        const q = PriorityQueue.from([5, 4, 3, 7, 6, 2, 1, 8], lt);
+        const q = PriorityQueue.from([5, 4, 3, 7, 6, 2, 1, 8], {gt: lt});
         assertEquals([...q], [1, 2, 3, 4, 5, 6, 7, 8]);
         assertEquals([...q], [1, 2, 3, 4, 5, 6, 7, 8]);
 
