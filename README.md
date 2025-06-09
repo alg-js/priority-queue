@@ -1,7 +1,7 @@
 # @alg/priority-queue
 
 [![JSR](https://jsr.io/badges/@alg/priority-queue)](https://jsr.io/@alg/priority-queue)
-[![License](https://img.shields.io/badge/Apache--2.0-green?label=license)](https://github.com/alg-js/priority-queue/blob/main/LICENSE)
+[![License](https://img.shields.io/badge/Apache--2.0-green?label=license)](https://codeberg.org/algjs/priority-queue/src/branch/main/LICENSE)
 
 A priority queue implemented as a binary heap.
 
@@ -10,6 +10,27 @@ A priority queue implemented as a binary heap.
 ```
 deno add jsr:@alg/priority-queue
 ```
+
+<details>
+<summary>Other Install Options</summary>
+
+```bash
+npx jsr add @alg/priority-queue
+```
+```bash
+bunx jsr add @alg/priority-queue
+```
+```bash
+pnpm i jsr:@alg/priority-queue
+```
+```bash
+yarn add jsr:@alg/priority-queue
+```
+```bash
+vlt install jsr:@alg/priority-queue
+```
+
+</details>
 
 ## Example
 
